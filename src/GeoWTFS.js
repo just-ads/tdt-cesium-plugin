@@ -14,7 +14,6 @@ import {
     VerticalOrigin,
     combine
 } from "cesium"
-import {randomNum} from "../../xzmap/util/util";
 import {loadProto} from "./util";
 
 
@@ -254,7 +253,7 @@ class GeoWTFS {
                 if(cacheTile) {
                     this.addLabelAndIco(cacheTile);
                 }else {
-                    const s = this.subdomains.length ? randomNum(0, this.subdomains.length - 1) : '';
+                    const s = this.subdomains.length ? (tile.x + tile.y) % this.subdomains.length : '';
                     let url = this.getTileUrl().replace('{x}', tile.x).replace('{y}', tile.y)
                         .replace('{z}', tile.level + 1).replace('{s}', s);
                     const xhr = new XMLHttpRequest();
@@ -302,7 +301,7 @@ class GeoWTFS {
                 if(cacheTile) {
                     this.addLabelAndIco(cacheTile);
                 }else {
-                    const s = this.subdomains.length ? randomNum(0, this.subdomains.length - 1) : '';
+                    const s = this.subdomains.length ? (tile.x + tile.y) % this.subdomains.length : '';
                     const url = this.getRoadTileUrl().replace('{x}', tile.x).replace('{y}', tile.y)
                         .replace('{z}', tile.level + 1).replace('{s}', s);
                     const xhr = new XMLHttpRequest();
@@ -506,7 +505,7 @@ class GeoWTFS {
                 }
             }
             if(undefined !== poi.symbolID && -1 < poi.symbolID){
-                const s = this.subdomains.length ? randomNum(0, this.subdomains.length - 1) : '';
+                const s = this.subdomains.length ? (tile.x + tile.y) % this.subdomains.length : '';
                 entityOption.billboard = {image: this.getIcoUrl().replace('{id}', tile.symbolID).replace('{s}', this.subdomains[s])};
                 Object.assign(entityOption.billboard, this.billboardGraphics)
                 if(this.serverFirstStyle){
