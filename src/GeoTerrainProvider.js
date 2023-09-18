@@ -1,4 +1,4 @@
-import "../util/zlib.min";
+import "zlib";
 import {
     Credit,
     defaultValue,
@@ -12,7 +12,6 @@ import {
     Request, RequestScheduler,
     HeightmapTerrainData, Rectangle
 } from 'cesium'
-import {randomNum} from "../../xzmap/util/util";
 
 function getRequest(url, request) {
     request = defined(request) ? request : new Request();
@@ -107,7 +106,7 @@ class GeoTerrainProvider {
         if (!this._ready) throw new DeveloperError('requestTileGeometry must not be called before ready returns true.');
         let s = '', url = this._url;
         if (Array.isArray(this._subdomains) && this._subdomains.length) {
-            s = this._subdomains[randomNum(0, this._subdomains.length - 1)];
+            s = this._subdomains[(x + y) % this._subdomains.length];
             url = this._url.replace('{s}', s);
         }
         // Gets the total number of tiles in the Y direction at a specified level-of-detail.
