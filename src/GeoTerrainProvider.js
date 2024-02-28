@@ -112,7 +112,7 @@ class GeoTerrainProvider {
 
         return tileResource
             .then(buffer => {
-                if (buffer.byteLength < 1000) return Promise.reject();
+                if (buffer.byteLength < 1000) return Promise.reject('无效数据');
                 return inflate(buffer);
             })
             .then(uint8Array => {
