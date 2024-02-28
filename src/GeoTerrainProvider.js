@@ -1,4 +1,4 @@
-import "zlib";
+import {inflate} from 'pako/lib/inflate.js'
 import {
     Credit,
     defaultValue,
@@ -8,50 +8,14 @@ import {
     Event,
     GeographicTilingScheme,
     TerrainProvider,
-    when,
-    Request, RequestScheduler,
-    HeightmapTerrainData, Rectangle
+    Resource,
+    HeightmapTerrainData,
+    Rectangle
 } from 'cesium'
 
-function getRequest(url, request) {
-    request = defined(request) ? request : new Request();
-    request.url = url;
-    request.requestFunction = function () {
-        let promise, xhr = new XMLHttpRequest();
-        xhr.open('GET', url, true);
-        xhr.responseType = 'arraybuffer';
-        xhr.send();
-        promise = when.defer();
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                    if (defined(xhr.response)) {
-                        let e = new DataView(xhr.response), x = new Uint8Array(e.byteLength);
-                        for (let d = 0; d < e.byteLength;) {
-                            x[d] = e.getUint8(d);
-                            d++
-                        }
-                        let t = undefined;
-                        if (!(x.length < 1000)) {
-                            let _x = new Zlib.Inflate(x);
-                            if (defined(_x)) {
-                                t = _x.decompress();
-                            }
-                        }
-                        if (defined(t)) {
-                            promise.resolve(t);
-                        } else {
-                            promise.reject(t);
-                        }
-                    }
-                } else {
-                    (400 <= xhr.status || 0 === xhr.status) && promise.reject(undefined);
-                }
-            }
-        };
-        return promise.promise;
-    };
-    return RequestScheduler.request(request);
+function f(e, x, d, t, _, h) {
+    let i = e.tileXYToRectangle(d, t, _);
+    return defined(Rectangle.intersection(i, x, h));
 }
 
 class GeoTerrainProvider {
@@ -62,15 +26,40 @@ class GeoTerrainProvider {
         this._tileType = defaultValue(options.tileType, 'heightmap');
         this._url = options.url;
         this._maxTerrainLevel = defaultValue(options.dataType, 'int');
-        this._proxy = options.proxy;
         this._subdomains = options.subdomains;
+        this._token = options.token;
         this.init(options);
     }
+
+    get credit() {
+        return this._credit;
+    }
+
+    get errorEvent() {
+        return this._errorEvent;
+    }
+
+    get hasVertexNormals() {
+        return false
+    }
+
+    get hasWaterMask() {
+        return false;
+    }
+
+    get tilingScheme() {
+        if (!this.ready) throw new DeveloperError('requestTileGeometry must not be called before ready returns true.');
+        return this._tilingScheme;
+    }
+
+    get ready() {
+        return this._ready;
+    }
+
 
     init(options) {
         this._ready = false;
         this._errorEvent = new Event();
-        this._readyPromise = when.defer();
         this._terrainDataStructure = {
             heightScale: 0.001,
             heightOffset: -1000,
@@ -94,80 +83,58 @@ class GeoTerrainProvider {
             this._tilingScheme.getNumberOfXTilesAtLevel(0)
         );
         this._ready = true;
-        this._readyPromise.resolve(true);
-        this._name = options.name;
-        this._opacity = options.opacity;
-        this._maxExtent = options.maxExtent;
         this._topLevel = defaultValue(options.topLevel, 5);
         this._bottomLevel = defaultValue(options.bottomLevel, 25);
     }
 
     requestTileGeometry(x, y, level, request) {
-        if (!this._ready) throw new DeveloperError('requestTileGeometry must not be called before ready returns true.');
-        let s = '', url = this._url;
-        if (Array.isArray(this._subdomains) && this._subdomains.length) {
-            s = this._subdomains[(x + y) % this._subdomains.length];
-            url = this._url.replace('{s}', s);
-        }
-        // Gets the total number of tiles in the Y direction at a specified level-of-detail.
-        this._tilingScheme.getNumberOfYTilesAtLevel(level);
-        if (level < this._bottomLevel && level >= this._topLevel) {
-            let _request;
-            url = url.replace('{x}', x).replace('{y}', y).replace('{z}', level + 1);
-            const proxy = this._proxy;
-            if (defined(proxy)) {
-                url = proxy.getURL(url);
-                request = defaultValue(request, true);
-                _request = getRequest(url, request);
-                if (!defined(_request)) {
-                    return
-                }
-            } else {
-                _request = getRequest(url);
-            }
-            if (this._tileType === 'quantized-mesh') {
-                // todo
-            }
-            return when(_request, (e) => {
-                let x = this.transformBuffer(e);
-                if (defined(x)) {
-                    const terrainData = new HeightmapTerrainData({
-                        buffer: x,
-                        width: this._heightmapWidth,
-                        height: this._heightmapHeight,
-                        childTileMask: this.getChildTileMask(x, y, level),
-                        structure: this._terrainDataStructure
-                    });
-                    terrainData._skirtHeight = 6000;
-                    return terrainData;
-                }
-            })
-        }
-        if(level < this._topLevel){
-            return new HeightmapTerrainData({
+        if (!this.ready) throw new DeveloperError('requestTileGeometry must not be called before ready returns true.');
+        if (level >= this._bottomLevel) return Promise.reject(`${level}该级别不发送请求!`);
+        if (level < this._topLevel) {
+            return Promise.resolve(new HeightmapTerrainData({
                 buffer: this.getVHeightBuffer(),
                 width: this._heightmapWidth,
                 height: this._heightmapHeight,
                 childTileMask: this.getChildTileMask(x, y, level),
                 structure: this._terrainDataStructure
-            });
+            }));
         }
-        if (level >= this._bottomLevel) {
-            return new Promise(function (e, x) {
-                x('该级别不发送请求!');
-            });
-        } else {
-            return undefined;
+
+        let s = '', url = this._url;
+        if (Array.isArray(this._subdomains) && this._subdomains.length) {
+            s = this._subdomains[(x + y) % this._subdomains.length];
+            url = url.replace('{s}', s);
         }
+        url = url.replace('{token}', this._token).replace('{x}', x).replace('{y}', y).replace('{z}', level + 1);
+
+        const tileResource = Resource.fetchArrayBuffer({url, request});
+        if (!tileResource) return undefined;
+
+        return tileResource
+            .then(buffer => {
+                if (buffer.byteLength < 1000) return Promise.reject();
+                return inflate(buffer);
+            })
+            .then(uint8Array => {
+                const terrainData = new HeightmapTerrainData({
+                    buffer: this.transformBuffer(uint8Array),
+                    width: this._heightmapWidth,
+                    height: this._heightmapHeight,
+                    childTileMask: this.getChildTileMask(x, y, level),
+                    structure: this._terrainDataStructure
+                });
+                terrainData._skirtHeight = 6000;
+                return terrainData;
+            });
     }
 
-    getLevelMaximumGeometricError(e){
+    getLevelMaximumGeometricError(e) {
         if (!this.ready)
             throw new DeveloperError('requestTileGeometry must not be called before ready returns true.');
         return this._levelZeroMaximumGeometricError / (1 << e);
     }
 
-    getTileDataAvailable(e, x, d){
+    getTileDataAvailable(e, x, d) {
         if (d < 25) return true;
     }
 
@@ -208,11 +175,11 @@ class GeoTerrainProvider {
         return h;
     }
 
-    getVHeightBuffer(){
+    getVHeightBuffer() {
         let e = this._vHeightBuffer;
         if (!defined(e)) {
             e = new Uint8ClampedArray(this._heightmapWidth * this._heightmapHeight * 4);
-            for (let x = 0; x < this._heightmapWidth * this._heightmapHeight * 4;){
+            for (let x = 0; x < this._heightmapWidth * this._heightmapHeight * 4;) {
                 e[x++] = 15;
                 e[x++] = 66;
                 e[x++] = 64;
@@ -247,41 +214,6 @@ class GeoTerrainProvider {
             }
         }
         return a;
-    }
-
-    f(e, x, d, t, _, h) {
-        let i = e.tileXYToRectangle(d, t, _);
-        return defined(Rectangle.intersection(i, x, h));
-    }
-
-
-    get errorEvent() {
-        return this._errorEvent;
-    }
-
-    get credit() {
-        return this._credit;
-    }
-
-    get tilingScheme() {
-        if (!this.ready) throw new DeveloperError('requestTileGeometry must not be called before ready returns true.');
-        return this._tilingScheme;
-    }
-
-    get ready() {
-        return this._ready;
-    }
-
-    get readyPromise() {
-        return this._readyPromise.promise;
-    }
-
-    get hasWaterMask() {
-        return false;
-    }
-
-    get hasVertexNormals() {
-        return false
     }
 }
 

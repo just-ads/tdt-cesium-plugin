@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <script src="../dist/tdtplug.umd.js"></script>
+    <title>Title</title>
+    <style>
+        html, body{
+            width: 100%;
+            height: 100%;
+        }
+        #cesium{
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="cesium"></div>
+</body>
+<script>
+    const view = new Cesium.Viewer('cesium', {
+        animation: false,
+        // baseLayerPicker: true,
+        fullscreenButton: false,
+        geocoder: false,
+        homeButton: false,
+        infoBox: false,
+        sceneModePicker: false,
+        selectionIndicator: false,
+        timeline: false,
+        navigationHelpButton: false,
+        navigationInstructionsInitiallyVisible: false,
+        // useDefaultRenderLoop: false,
+        automaticallyTrackDataSourceClocks: false,
+        showRenderLoopErrors: false
+    });
+    // df76200bac1ad6429797c35e9b857500
+    view.terrainProvider = new TdtPlug.GeoTerrainProvider({
+        url: 'https://t{s}.tianditu.gov.cn/mapservice/swdx?T=elv_c&x={x}&y={y}&l={z}&tk=df76200bac1ad6429797c35e9b857500',
+        subdomains: ['0','1','2','3','4','5','6','7'],
+    })
+</script>
+</html>

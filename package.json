@@ -1,0 +1,35 @@
+{
+  "name": "tdt-terrain-for-cesium",
+  "version": "1.0.0",
+  "description": "cesium天地图矢量插件",
+  "main": "src/index.js",
+  "files": [],
+  "type": "module",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/just-ads/tdt-terrain-for-cesium.git"
+  },
+  "keywords": [
+    "cesium",
+    "天地图"
+  ],
+  "author": "ADS <pzd2934970779@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/just-ads/tdt-terrain-for-cesium/issues"
+  },
+  "homepage": "https://github.com/just-ads/tdt-terrain-for-cesium#readme",
+  "dependencies": {
+    "pako": "^2.1.0",
+    "protobufjs": "^7.2.6"
+  },
+  "devDependencies": {
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^25.0.7",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "rollup": "^4.12.0"
+  }
+}
