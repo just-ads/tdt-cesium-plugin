@@ -19,7 +19,7 @@ const viewer = new Cesium.Viewer('container');
 new TdtPlug.GeoWTFS(viewer, {
         subdomains: ['0','1','2','3','4','5','6','7'],
         url: 'https://t{s}.tianditu.gov.cn/mapservice/GetTiles?lxys={z},{x},{y}&tk=你的token',
-        icoUrl: 'https://t{s}.tianditu.gov.cn/mapservice/GetIcon?id={id}&tk=df76200bac1ad6429797c35e9b857500',
+        icoUrl: 'https://t{s}.tianditu.gov.cn/mapservice/GetIcon?id={id}&tk=你的token',
         metadata:{
             boundBox: {
                 minX: -180,
