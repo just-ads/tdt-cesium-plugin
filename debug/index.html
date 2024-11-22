@@ -57,7 +57,7 @@
         // const lat = Cesium.Math.toDegress(cartographic.latitude);
         Cesium.sampleTerrainMostDetailed(view.terrainProvider, [cartographic], true)
             .then(res => {
-                console.log('海拔: ' + res.height);
+                console.log('海拔: ' + res[0].height);
             })
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
