@@ -1,0 +1,31 @@
+option optimize_for = LITE_RUNTIME;
+package GEOPOI;
+enum enumGeometryType {ePoint = 0; eMultiLineString = 1; ePolygon = 2;};
+enum enumZCoordType {eCloseGround = 0; eCloseSeaSurface = 1; eRelativelyGround = 2; eAbsolute = 3;};
+message PBPOI{
+  required uint64 OID = 1;
+  required string Name = 2;
+  repeated double Coordinates = 3 [packed = true];
+  required enumGeometryType GeometryType = 4;
+  optional int32 Priority = 5 [default = 0];
+  repeated int32 Interates = 6 [packed = true];
+  optional int32 SymbolID = 10  [default = -1];
+  optional double DisplayHeight = 11 [default = 32];
+  optional uint32 ShiningColor = 12 [default = 0];
+  optional uint32  FontNameIndex = 13 [default = 0];
+  optional int32  FontSize = 14 [default = 18];
+  optional uint32  FontColor = 15 [default = 0];
+  optional enumZCoordType ZCoordType = 16 [default = eAbsolute];
+  optional int32 FontStyle = 17 [default = 0];
+  optional int32 ShiningSize = 18 [default = 2];
+  optional int32 TextSymbolID = 19  [default = -1];
+};
+message StringTable {
+  repeated string s = 1;
+}
+message PBPOITile{
+  required int64 Version = 1;
+  required int64 TileKey = 2;
+  required StringTable StringTable = 3;
+  repeated PBPOI POIS = 4;
+};
