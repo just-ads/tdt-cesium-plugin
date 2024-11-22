@@ -10,11 +10,12 @@
     <script src="../dist/tdtplug.umd.js"></script>
     <title>Title</title>
     <style>
-        html, body{
+        html, body {
             width: 100%;
             height: 100%;
         }
-        #cesium{
+
+        #cesium {
             width: 100%;
             height: 100%;
         }
@@ -26,7 +27,8 @@
 <script>
     const view = new Cesium.Viewer('cesium', {
         animation: false,
-        // baseLayerPicker: true,
+        baseLayerPicker: true,
+        baseLayer: false,
         fullscreenButton: false,
         geocoder: false,
         homeButton: false,
@@ -38,12 +40,27 @@
         navigationInstructionsInitiallyVisible: false,
         // useDefaultRenderLoop: false,
         automaticallyTrackDataSourceClocks: false,
-        showRenderLoopErrors: false
+        showRenderLoopErrors: true
     });
-    // df76200bac1ad6429797c35e9b857500
     view.terrainProvider = new TdtPlug.GeoTerrainProvider({
-        url: 'https://t{s}.tianditu.gov.cn/mapservice/swdx?T=elv_c&x={x}&y={y}&l={z}&tk=df76200bac1ad6429797c35e9b857500',
-        subdomains: ['0','1','2','3','4','5','6','7'],
-    })
+        url: 'https://t{s}.tianditu.gov.cn/mapservice/swdx?T=elv_c&x={x}&y={y}&l={z}&tk=8c021d08d9f233e1e2723c001ac6ae78',
+        subdomains: ['0', '1', '2', '3', '4', '5', '6', '7'],
+    });
+
+    const handler = new Cesium.ScreenSpaceEventHandler(view.scene.canvas);
+
+    handler.setInputAction(function(e) {
+        const cartesian = view.camera.pickEllipsoid(e.position)
+        if (!cartesian) return;
+        const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+        // const lng = Cesium.Math.toDegress(cartographic.longitude);
+        // const lat = Cesium.Math.toDegress(cartographic.latitude);
+        Cesium.sampleTerrainMostDetailed(view.terrainProvider, [cartographic], true)
+            .then(res => {
+                console.log('海拔: ' + res.height);
+            })
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+
 </script>
 </html>

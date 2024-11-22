@@ -30,6 +30,7 @@
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
+    "cesium": "^1.123.1",
     "rollup": "^4.12.0"
   }
 }
