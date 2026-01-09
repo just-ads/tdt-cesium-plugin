@@ -2,15 +2,27 @@
   "name": "tdt-terrain-for-cesium",
   "version": "1.0.0",
   "description": "cesium天地图矢量插件",
-  "main": "src/index.js",
-  "files": [],
+  "main": "dist/tdtplug.umd.js",
+  "module": "dist/tdtplug.es.js",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/tdtplug.es.js",
+      "require": "./dist/tdtplug.umd.js",
+      "default": "./dist/tdtplug.es.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
-    "build": "rollup -c"
+    "build": "rollup -c",
+    "prepare": "npm run build"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/just-ads/tdt-terrain-for-cesium.git"
+    "url": "https://github.com/KnightJaime/tdt-cesium-plugin.git"
   },
   "keywords": [
     "cesium",
@@ -22,7 +34,8 @@
     "url": "https://github.com/just-ads/tdt-terrain-for-cesium/issues"
   },
   "homepage": "https://github.com/just-ads/tdt-terrain-for-cesium#readme",
-  "dependencies": {
+  "peerDependencies": {
+    "cesium": "^1.123.1",
     "pako": "^2.1.0",
     "protobufjs": "^7.2.6"
   },
@@ -30,7 +43,6 @@
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-node-resolve": "^15.2.3",
-    "cesium": "^1.123.1",
     "rollup": "^4.12.0"
   }
 }

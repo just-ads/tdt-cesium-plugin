@@ -4,7 +4,12 @@ import babel from '@rollup/plugin-babel'
 
 export default {
     input: 'src/index.js',
-    external: ['cesium'],
+    external: (id) => {
+        return id === 'cesium' || 
+               id === 'protobufjs' || 
+               id.startsWith('pako/') ||
+               id === 'pako';
+    },
     output: [{
         name: 'TdtPlug',
         file: 'dist/tdtplug.umd.js',
