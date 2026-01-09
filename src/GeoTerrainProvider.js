@@ -54,6 +54,8 @@ class GeoTerrainProvider extends CustomHeightmapTerrainProvider {
         options = defaultValue(options, {});
         super({
             ...options,
+            // 必需，虽然 requestTileGeometry 被重写了
+            callback: () => undefined,
             ellipsoid: Ellipsoid.WGS84,
             width: 64,
             height: 64,
@@ -66,7 +68,8 @@ class GeoTerrainProvider extends CustomHeightmapTerrainProvider {
 
         this._rectangles = [];
         this._topLevel = 5;
-        this._bottomLevel = 11;
+        // 实测天地图支持 l=12，从 l=13 开始返回空数据；
+        this._bottomLevel = 12;
         this._terrainDataStructure = {
             heightScale: 0.001,
             heightOffset: -1000,
