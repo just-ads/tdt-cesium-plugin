@@ -68,7 +68,8 @@ class GeoTerrainProvider extends CustomHeightmapTerrainProvider {
 
         this._rectangles = [];
         this._topLevel = 5;
-        this._bottomLevel = 25;
+        // 实测天地图支持 l=12，从 l=13 开始返回空数据；
+        this._bottomLevel = 12;
         this._terrainDataStructure = {
             heightScale: 0.001,
             heightOffset: -1000,
