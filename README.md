@@ -1,6 +1,12 @@
 # tdt_terrain
 > cesium天地图地形和地名，提取自天地图官方插件
 
+## 安装
+
+```bash
+npm install github:just-ads/tdt-cesium-plugin
+```
+
 ## 使用
 
 ### 地形
