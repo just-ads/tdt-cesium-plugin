@@ -1,6 +1,6 @@
 {
   "name": "tdt-terrain-for-cesium",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "cesium天地图矢量插件",
   "main": "dist/tdtplug.umd.js",
   "module": "dist/tdtplug.es.js",
