@@ -3,7 +3,6 @@ import {
     Cartesian3,
     Color,
     createGuid,
-    defaultValue,
     defined,
     DeveloperError,
     Entity,
@@ -138,7 +137,7 @@ class GeoWTFS {
     constructor(viewer, options) {
         if (!defined(viewer)) throw new DeveloperError('viewer is required.');
         if(!defined(options.url)) throw new DeveloperError('options.url is required.');
-        options = defaultValue(options, {});
+        options = options ?? {};
         this.viewer = viewer;
         this.proxy = options.proxy;
         this.url = options.url;
@@ -149,7 +148,7 @@ class GeoWTFS {
         this.labelGraphics = combine(options.labelGraphics, defaultLabelGraphics, true);
         this.billboardGraphics = combine(options.billboardGraphics, defaultBillboardGraphics, true);
         this.aotuCollide = !!options.aotuCollide;
-        this.collisionPadding = defaultValue(options.collisionPadding, [3, 5, 3, 5]);
+        this.collisionPadding = options.collisionPadding ?? [3, 5, 3, 5];
         this.serverFirstStyle = !!options.serverFirstStyle;
         this.subdomains = options.subdomains || [];
         this.tileCache= [];

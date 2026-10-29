@@ -1,6 +1,5 @@
 import {inflate} from 'pako/lib/inflate.js'
 import {
-    defaultValue,
     defined,
     DeveloperError,
     Ellipsoid,
@@ -51,7 +50,7 @@ function createHeightmapTerrainData(provider, buffer, level, x, y) {
 
 class GeoTerrainProvider extends CustomHeightmapTerrainProvider {
     constructor(options) {
-        options = defaultValue(options, {});
+        options = options ?? {};
         super({
             ...options,
             // 必需，虽然 requestTileGeometry 被重写了
@@ -61,7 +60,7 @@ class GeoTerrainProvider extends CustomHeightmapTerrainProvider {
             height: 64,
         });
         if (!defined(options.url)) throw new DeveloperError('options.url is required.');
-        this._dataType = defaultValue(options.dataType, 'int16');
+        this._dataType = options.dataType ?? 'int16';
         this._url = options.url;
         this._subdomains = options.subdomains;
         this._token = options.token;
