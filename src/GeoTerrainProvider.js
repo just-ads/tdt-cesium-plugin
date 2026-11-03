@@ -16,21 +16,17 @@ function f(e, x, d, t, _, h) {
 }
 
 function createAvailability(provider) {
-    const overallAvailability = [[[0, 0, 1, 0]]]
-    const length = overallAvailability.length;
-    const availability = new TileAvailability(provider.tilingScheme, 19);
-    for (let level = 0; level < length; ++level) {
-        const levelRanges = overallAvailability[level];
-        for (let i = 0; i < levelRanges.length; ++i) {
-            const range = levelRanges[i];
-            availability.addAvailableTileRange(
-                level,
-                range[0],
-                range[1],
-                range[2],
-                range[3],
-            );
-        }
+    const tilingScheme = provider.tilingScheme;
+    const bottomLevel = provider._bottomLevel;
+    const availability = new TileAvailability(tilingScheme, bottomLevel - 1);
+    for (let level = 0; level < bottomLevel; ++level) {
+        availability.addAvailableTileRange(
+            level,
+            0,
+            0,
+            tilingScheme.getNumberOfXTilesAtLevel(level) - 1,
+            tilingScheme.getNumberOfYTilesAtLevel(level) - 1,
+        );
     }
     return availability
 }
@@ -44,7 +40,7 @@ function createHeightmapTerrainData(provider, buffer, level, x, y) {
         structure: provider._terrainDataStructure
     });
     terrainData._skirtHeight = 6000;
-    provider.availability.addAvailableTileRange(level, x, y, x, y)
+    // createAvailability 已按 bottomLevel 完整注册各级瓦片，加载路径不再增量注册 availability
     return terrainData;
 }
 
@@ -66,9 +62,9 @@ class GeoTerrainProvider extends CustomHeightmapTerrainProvider {
         this._token = options.token;
 
         this._rectangles = [];
-        this._topLevel = 5;
+        this._topLevel = options.topLevel ?? 5;
         // 实测天地图支持 l=12，从 l=13 开始返回空数据；
-        this._bottomLevel = 12;
+        this._bottomLevel = options.bottomLevel ?? 12;
         this._terrainDataStructure = {
             heightScale: 0.001,
             heightOffset: -1000,
@@ -117,7 +113,7 @@ class GeoTerrainProvider extends CustomHeightmapTerrainProvider {
     }
 
     getTileDataAvailable(e, x, d) {
-        if (d < this._bottomLevel) return true;
+        return d < this._bottomLevel;
     }
 
     _transformBuffer(e) {
